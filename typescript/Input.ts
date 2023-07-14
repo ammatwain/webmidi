@@ -5,6 +5,9 @@ import {InputChannel} from "./InputChannel";
 import {Message} from "./Message";
 import {Utilities} from "./Utilities";
 import {WebMidi} from "./WebMidi";
+import {InputEventMap, WebMidiApi} from "./Interfaces";
+import { Output } from "./Output";
+import { Listener } from "./Listener";
 
 /**
  * The `Input` class represents a single MIDI input port. This object is automatically instantiated
@@ -46,52 +49,53 @@ import {WebMidi} from "./WebMidi";
  * @license Apache-2.0
  */
 export class Input extends EventEmitter {
+
+  /**
+   * @type {Forwarder[]}
+   * @private
+   */
+  private _forwarders: Forwarder[] = [];
+
+  /**
+   * Reference to the actual MIDIInput object
+   * @type WebMidiApi.MIDIInput
+   * @private
+   */
+  private _midiInput: WebMidiApi.MIDIInput;
+
+  /**
+   * @type {number}
+   * @private
+   */
+  private _octaveOffset: number = 0;
+
+  /**
+   * Array containing the 16 [`InputChannel`](InputChannel) objects available for this `Input`. The
+   * channels are numbered 1 through 16.
+   *
+   * @type {InputChannel[]}
+   */
+  public channels: InputChannel[] = [];
+
   /**
    * Creates an `Input` object.
    *
    * @param {WebMidiApi.MIDIInput} midiInput [`MIDIInput`](https://developer.mozilla.org/en-US/docs/Web/API/MIDIInput)
    * object as provided by the MIDI subsystem (Web MIDI API).
    */
-  constructor(midiInput: WebMidiApi.MIDIInput){
- {
-
+  constructor(midiInput: WebMidiApi.MIDIInput) {
     super();
 
-    /**
-     * Reference to the actual MIDIInput object
-     * @private
-     */
     this._midiInput = midiInput;
 
-    /**
-     * @type {number}
-     * @private
-     */
-    this._octaveOffset = 0;
-
-    /**
-     * Array containing the 16 [`InputChannel`](InputChannel) objects available for this `Input`. The
-     * channels are numbered 1 through 16.
-     *
-     * @type {InputChannel[]}
-     */
-    this.channels = [];
-    for (let i = 1; i <= 16; i++) this.channels[i] = new InputChannel(this, i);
-
-    /**
-     * @type {Forwarder[]}
-     * @private
-     */
-    this._forwarders = [];
+    Enumerations.CHANNEL_NUMBERS.forEach((i: number)=>{
+      this.channels[i] = new InputChannel(this, i);
+    });
 
     // Setup listeners
     this._midiInput.onstatechange = this._onStateChange.bind(this);
     this._midiInput.onmidimessage = this._onMidiMessage.bind(this);
   }
-
-  private _forwarders;
-  private _midiInput;
-  private _octaveOffset;
 
   /**
    * Executed when a `"midimessage"` event is received
@@ -253,14 +257,6 @@ export class Input extends EventEmitter {
 
 
   /**
-   * Array containing the 16 [`InputChannel`](InputChannel) objects available for this `Input`. The
-   * channels are numbered 1 through 16.
-   *
-   * @type {InputChannel[]}
-   */
-  channels: InputChannel[];
-
-  /**
    * Adds a forwarder that will forward all incoming MIDI messages matching the criteria to the
    * specified [`Output`](Output) destination(s). This is akin to the hardware MIDI THRU port, with
    * the added benefit of being able to filter which data is forwarded.
@@ -286,7 +282,7 @@ export class Input extends EventEmitter {
     channels?: number | number[];
   }): Forwarder {
 
-    let forwarder;
+    let forwarder: Forwarder;
 
     // Unless 'output' is a forwarder, create a new forwarder
     if (output instanceof Forwarder) {

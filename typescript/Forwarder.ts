@@ -1,9 +1,8 @@
-/*START!Forwarders,js-----------------------------------------------------------------------------------------------------------------------*/
-/*
-import {Enumerations} from "./Enumerations.js";
-import {Output} from "./Output.js";
-import {WebMidi} from "./WebMidi.js";
-*/
+import {Enumerations} from "./Enumerations";
+import { Message } from "./Message";
+import {Output} from "./Output";
+import {WebMidi} from "./WebMidi";
+
 /**
  * The `Forwarder` class allows the forwarding of MIDI messages to predetermined outputs. When you
  * call its [`forward()`](#forward) method, it will send the specified [`Message`](Message) object

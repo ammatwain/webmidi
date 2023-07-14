@@ -3,6 +3,9 @@ import {WebMidi} from "./WebMidi";
 import {Utilities} from "./Utilities";
 import {Note} from "./Note";
 import {Enumerations} from "./Enumerations";
+import { Input } from "./Input";
+import { InputChannelEventMap } from "./Interfaces";
+import { Listener } from "./Listener";
 
 /**
  * The `InputChannel` class represents a single MIDI input channel (1-16) from a single input

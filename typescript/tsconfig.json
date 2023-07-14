@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+      "target": "es2017",
+      "esModuleInterop": true,
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "noUnusedLocals": true,
+      "outDir": "build",
+      "declaration": true,
+      "sourceMap": true,
+      "typeRoots": ["./node_modules/@types"],
+     },
+    "include": [
+      "./WebMidi.ts"
+    ],
+    "exclude": [
+      "vecchio_musicante",
+      "dist",
+      "demo",
+      "build"
+    ]
+  }

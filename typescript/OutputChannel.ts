@@ -490,7 +490,7 @@ export class OutputChannel extends EventEmitter {
    *
    * @returns {OutputChannel} Returns the `OutputChannel` object so methods can be chained.
    */
-  private _setCurrentParameter {
+  private _setCurrentParameter(data: number | number[]) {
 
     data = [].concat(data);
 

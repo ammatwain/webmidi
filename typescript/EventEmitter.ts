@@ -1,3 +1,21 @@
+import { Listener } from "./Listener";
+
+/**
+ * The callback function is executed when the associated event is triggered via [`emit()`](#emit).
+ * The [`emit()`](#emit) method relays all additional arguments it received to the callback
+ * functions. Since [`emit()`](#emit) can be passed a variable number of arguments, it is up to
+ * the developer to make sure the arguments match those of the associated callback. In addition,
+ * the callback also separately receives all the arguments present in the listener's
+ * [`arguments`](Listener#arguments) property. This makes it easy to pass data from where the
+ * listener is added to where the listener is executed.
+ *
+ * @callback EventEmitterCallback
+ * @param {...*} [args] A variable number of arguments matching the ones (if any) that were passed
+ * to the [`emit()`](#emit) method (except, the first one) followed by the arguments found in the
+ * listener's [`arguments`](Listener#arguments) array.
+ */
+export type EventEmitterCallback = (...args: any[]) => void;
+
 /**
  * The `EventEmitter` class provides methods to implement the _observable_ design pattern. This
  * pattern allows one to _register_ a function to execute when a specific event is _emitted_ by the
@@ -39,7 +57,7 @@ export class EventEmitter {
    * @param {boolean} [eventsSuspended=false] Whether the `EventEmitter` is initially in a suspended
    * state (i.e. not executing callbacks).
    */
-  constructor(eventsSuspended?: boolean) {
+  constructor(eventsSuspended: boolean = false) {
 
     /**
      * An object containing a property for each event with at least one registered listener. Each

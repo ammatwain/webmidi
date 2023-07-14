@@ -4,6 +4,8 @@ import {Enumerations} from "./Enumerations";
 import {Message} from "./Message";
 import {WebMidi} from "./WebMidi";
 import {Utilities} from "./Utilities.js";
+import {WebMidiApi, Event, PortEventMap } from "./Interfaces";
+import { Listener } from "./Listener";
 
 /**
  * The `Output` class represents a single MIDI output port (not to be confused with a MIDI channel).
@@ -29,6 +31,19 @@ import {Utilities} from "./Utilities.js";
 export class Output extends EventEmitter {
 
   /**
+   * A reference to the `MIDIOutput` object
+   * @type {MIDIOutput}
+   * @private
+   */
+  private _midiOutput: WebMidiApi.MIDIOutput;
+
+  /**
+   * @type {number}
+   * @private
+   */
+  private _octaveOffset: number = 0;
+
+  /**
    * Creates an `Output` object.
    *
    * @param {WebMidiApi.MIDIOutput} midiOutput [`MIDIOutput`](https://developer.mozilla.org/en-US/docs/Web/API/MIDIOutput)
@@ -38,18 +53,7 @@ export class Output extends EventEmitter {
 
     super();
 
-    /**
-     * A reference to the `MIDIOutput` object
-     * @type {MIDIOutput}
-     * @private
-     */
     this._midiOutput = midiOutput;
-
-    /**
-     * @type {number}
-     * @private
-     */
-    this._octaveOffset = 0;
 
     /**
      * Array containing the 16 [`OutputChannel`]{@link OutputChannel} objects available provided by
@@ -64,9 +68,7 @@ export class Output extends EventEmitter {
 
   }
 
-  private _midiOutput;
-  private _octaveOffset;
-  private _onStateChange {
+  private _onStateChange(e: Event) {
 
     let event = {
       timestamp: WebMidi.time
@@ -194,7 +196,9 @@ export class Output extends EventEmitter {
       "prepend"?: boolean;
       "remaining"?: number;
     }
-  ): Listener | Listener[];
+  ): Listener | Listener[] {
+    return super.addListener(e,listener,options);
+  };
 
   /**
    * Adds a one-time event listener that will trigger a function callback when the specified event
@@ -233,7 +237,9 @@ export class Output extends EventEmitter {
       "duration"?: number;
       "prepend"?: boolean;
     }
-  ): Listener | Listener[];
+  ): Listener | Listener[] {
+    return super.addOneTimeListener(e,listener,options);
+  }
 
   /**
    * Clears all messages that have been queued but not yet delivered.
@@ -2213,7 +2219,7 @@ export class Output extends EventEmitter {
   sendRpnDecrement(parameter: string | number[], options?: {
     channels?: number | number[];
     time?: number | string;
-  }): Output) {
+  }): Output {
 
     if (options.channels == undefined) options.channels = Enumerations.MIDI_CHANNEL_NUMBERS;
 

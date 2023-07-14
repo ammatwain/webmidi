@@ -1,3 +1,5 @@
+import { EventEmitter, EventEmitterCallback } from "./EventEmitter";
+
 /**
  * The `Listener` class represents a single event listener object. Such objects keep all relevant
  * contextual information such as the event being listened to, the object the listener was attached
@@ -28,6 +30,7 @@ export class Listener {
    * @throws {TypeError} The `callback` must be a function.
    */
   constructor(event: string | Symbol, target: EventEmitter, callback: EventEmitterCallback, options?: {
+    duration: number;
     context?: any;
     remaining?: number;
     arguments?: any[];
