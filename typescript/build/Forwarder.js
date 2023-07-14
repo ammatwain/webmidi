@@ -58,7 +58,7 @@ class Forwarder {
          * default, this array includes all MIDI channels (`1` to `16`).
          * @type {number[]}
          */
-        this.channels = Enumerations_1.Enumerations.MIDI_CHANNEL_NUMBERS;
+        this.channels = Enumerations_1.Enumerations.CHANNEL_NUMBERS;
         /**
          * Indicates whether message forwarding is currently suspended or not in this forwarder.
          * @type {boolean}
@@ -79,7 +79,7 @@ class Forwarder {
                 }
             });
             // Validate types
-            if (options.types !== undefined) {
+            if (options.types !== undefined && Array.isArray(options.types)) {
                 options.types.forEach(type => {
                     if (!Enumerations_1.Enumerations.SYSTEM_MESSAGES.hasOwnProperty(type) &&
                         !Enumerations_1.Enumerations.CHANNEL_MESSAGES.hasOwnProperty(type)) {
@@ -88,18 +88,18 @@ class Forwarder {
                 });
             }
             // Validate channels
-            if (options.channels !== undefined) {
+            if (options.channels !== undefined && Array.isArray(options.channels)) {
                 options.channels.forEach(channel => {
-                    if (!Enumerations_1.Enumerations.MIDI_CHANNEL_NUMBERS.includes(channel)) {
+                    if (!Enumerations_1.Enumerations.CHANNEL_NUMBERS.includes(channel)) {
                         throw new TypeError("MIDI channel must be between 1 and 16.");
                     }
                 });
             }
         }
         this.destinations = destinations;
-        if (options.types)
+        if (options.types && Array.isArray(options.types))
             this.types = options.types;
-        if (options.channels)
+        if (options.channels && Array.isArray(options.channels))
             this.channels = options.channels;
     }
     /**

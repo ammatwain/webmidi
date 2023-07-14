@@ -126,9 +126,9 @@ export class EventEmitter {
    * @throws {TypeError} The `callback` parameter must be a function.
    */
   addListener(event: string | Symbol, callback: EventEmitterCallback, options?: {
+    duration: number;
     context?: any;
     prepend?: boolean;
-    duration?: number;
     remaining?: number;
     arguments?: any[];
   }): Listener | Listener[] {
@@ -145,12 +145,12 @@ export class EventEmitter {
 
     const listener = new Listener(event, this, callback, options);
 
-    if (!this.eventMap[event]) this.eventMap[event] = [];
+    if (!this.eventMap[String(event)]) this.eventMap[String(event)] = [];
 
     if (options.prepend) {
-      this.eventMap[event].unshift(listener);
+      this.eventMap[String(event)].unshift(listener);
     } else {
-      this.eventMap[event].push(listener);
+      this.eventMap[String(event)].push(listener);
     }
 
     return listener;
@@ -187,13 +187,14 @@ export class EventEmitter {
    * @throws {TypeError} The `callback` parameter must be a function.
    */
   addOneTimeListener(event: string | Symbol, callback: EventEmitterCallback, options?: {
+    duration: number;
     context?: any;
     prepend?: boolean;
-    duration?: number;
     arguments?: any[];
+    remaining?: number;
   }): Listener | Listener[] {
     options.remaining = 1;
-    this.addListener(event, callback, options);
+    return this.addListener(event, callback, options);
   }
 
   /**
@@ -217,25 +218,25 @@ export class EventEmitter {
 
       // Check for ANY_EVENT
       if (
-        this.eventMap[EventEmitter.ANY_EVENT] && this.eventMap[EventEmitter.ANY_EVENT].length > 0
+        this.eventMap[String(EventEmitter.ANY_EVENT)] && this.eventMap[String(EventEmitter.ANY_EVENT)].length > 0
       ) {
         return true;
       }
 
       // Check for any regular events
       return Object.entries(this.eventMap).some(([, value]) => {
-        return value.length > 0;
+        return String(value).length > 0;
       });
 
     } else {
 
-      if (this.eventMap[event] && this.eventMap[event].length > 0) {
+      if (this.eventMap[String(event)] && this.eventMap[String(event)].length > 0) {
 
         if (callback instanceof Listener) {
-          let result = this.eventMap[event].filter(listener => listener === callback);
+          let result = this.eventMap[String(event)].filter((listener: any) => listener === callback);
           return result.length > 0;
         } else if (typeof callback === "function") {
-          let result = this.eventMap[event].filter(listener => listener.callback === callback);
+          let result = this.eventMap[String(event)].filter(listener => listener.callback === callback);
           return result.length > 0;
         } else if (callback != undefined) {
           return false;
@@ -282,7 +283,7 @@ export class EventEmitter {
    * @returns {Listener[]} An array of [`Listener`]{@link Listener} objects.
    */
   getListeners(event: string | Symbol): Listener[] {
-    return this.eventMap[event] || [];
+    return this.eventMap[String(event)] || [];
   }
 
 
@@ -370,7 +371,7 @@ export class EventEmitter {
    */
   emit(event: string, ...args: any[]): any[] {
 
-    if (typeof event !== "string" && !(event instanceof String)) {
+    if (typeof event !== "string" && !(<any>event instanceof String)) {
       throw new TypeError("The 'event' parameter must be a string.");
     }
 
@@ -381,10 +382,10 @@ export class EventEmitter {
 
     // We must make sure that we do not have undefined otherwise concat() will add an undefined
     // entry in the array.
-    let listeners = this.eventMap[EventEmitter.ANY_EVENT] || [];
+    let listeners = this.eventMap[String(EventEmitter.ANY_EVENT)] || [];
     if (this.eventMap[event]) listeners = listeners.concat(this.eventMap[event]);
 
-    listeners.forEach(listener => {
+    listeners.forEach((listener: any) => {
 
       // This is the per-listener suspension check
       if (listener.suspended) return;
@@ -435,12 +436,12 @@ export class EventEmitter {
     if (event === undefined) {
       this.eventMap = {};
       return;
-    } else if (!this.eventMap[event]) {
+    } else if (!this.eventMap[String(event)]) {
       return;
     }
 
     // Find listeners that do not match the criterias (those are the ones we will keep)
-    let listeners = this.eventMap[event].filter(listener => {
+    let listeners = this.eventMap[String(event)].filter((listener: any) => {
 
       return (callback && listener.callback !== callback) ||
         (options.remaining && options.remaining !== listener.remaining) ||
@@ -449,9 +450,9 @@ export class EventEmitter {
     });
 
     if (listeners.length) {
-      this.eventMap[event] = listeners;
+      this.eventMap[String(event)] = listeners;
     } else {
-      delete this.eventMap[event];
+      delete this.eventMap[String(event)];
     }
 
   }
@@ -477,21 +478,21 @@ export class EventEmitter {
     duration?: number;
   }): Promise<any> {
 
-    options.duration = parseInt(options.duration);
+    options.duration = Number(options.duration);
     if (isNaN(options.duration) || options.duration <= 0) options.duration = Infinity;
 
     return new Promise((resolve, reject) => {
 
-      let timeout;
+      let timeout: any;
 
       let listener = this.addListener(event, () => {
         clearTimeout(timeout);
-        resolve();
-      }, {remaining: 1});
+        (<EventEmitterCallback>resolve)();
+      }, {duration: options.duration, remaining: 1});
 
       if (options.duration !== Infinity) {
         timeout = setTimeout(() => {
-          listener.remove();
+          (<Listener>listener).remove();
           reject("The duration expired before the event was emitted.");
         }, options.duration);
       }

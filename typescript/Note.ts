@@ -97,7 +97,7 @@ export class Note {
     if (Number.isInteger(value)) {
       this.identifier = Utilities.toNoteIdentifier(value);
     } else {
-      this.identifier = value;
+      this.identifier = String(value);
     }
 
   }
@@ -114,8 +114,8 @@ export class Note {
   getOffsetNumber(octaveOffset?: number, semitoneOffset?: number): number {
 
     if (WebMidi.validation) {
-      octaveOffset = parseInt(octaveOffset) || 0;
-      semitoneOffset = parseInt(semitoneOffset) || 0;
+      octaveOffset = Number(octaveOffset) || 0;
+      semitoneOffset = Number(semitoneOffset) || 0;
     }
 
     return Math.min(Math.max(this.number + (octaveOffset * 12) + semitoneOffset, 0), 127);
@@ -131,15 +131,8 @@ export class Note {
     return this._accidental;
   }
 
-  set accidental(arg: string) {
-
-    if (WebMidi.validation) {
-      value = value.toLowerCase();
-      if (!["#", "##", "b", "bb"].includes(value)) throw new Error("Invalid accidental value");
-    }
-
+  set accidental(value: string) {
     this._accidental = value;
-
   }
 
   /**
@@ -151,17 +144,8 @@ export class Note {
     return this._attack;
   }
 
-  set attack(arg: number) {
-
-    if (WebMidi.validation) {
-      value = parseFloat(value);
-      if (isNaN(value) || !(value >= 0 && value <= 1)) {
-        throw new RangeError("Invalid attack value.");
-      }
-    }
-
-    this._attack = value;
-
+  set attack(value: number) {
+    this._attack = Number(value);
   }
 
   /**
@@ -175,17 +159,8 @@ export class Note {
     return this._duration;
   }
 
-  set duration(arg: number) {
-
-    if (WebMidi.validation) {
-      value = parseFloat(value);
-      if (isNaN(value) || value === null || value < 0) {
-        throw new RangeError("Invalid duration value.");
-      }
-    }
-
-    this._duration = value;
-
+  set duration(value: number) {
+    this._duration = Number(value);
   }
 
 
@@ -194,18 +169,11 @@ export class Note {
    * @type {string}
    * @since 3.0.0
    */
-  set identifier(arg: string){
-
+  set identifier(value: string){
     const fragments = Utilities.getNoteDetails(value);
-
-    if (WebMidi.validation) {
-      if (!value) throw new Error("Invalid note identifier");
-    }
-
     this._name = fragments.name;
     this._accidental = fragments.accidental;
     this._octave = fragments.octave;
-
   }
 
   get identifier(): string {
@@ -222,17 +190,8 @@ export class Note {
     return this._name;
   }
 
-  set name(arg: string)  {
-
-    if (WebMidi.validation) {
-      value = value.toUpperCase();
-      if (!["C", "D", "E", "F", "G", "A", "B"].includes(value)) {
-        throw new Error("Invalid name value");
-      }
-    }
-
-    this._name = value;
-
+  set name(value: string)  {
+    this._name = value.toUpperCase();
   }
 
 
@@ -256,15 +215,8 @@ export class Note {
   get octave(): number {
     return this._octave;
   }
-  set octave(arg: number) {
-
-    if (WebMidi.validation) {
-      value = parseInt(value);
-      if (isNaN(value)) throw new Error("Invalid octave value");
-    }
-
-    this._octave = value;
-
+  set octave(value: number) {
+    this._octave = Number(value);
   }
 
   /**
@@ -275,7 +227,7 @@ export class Note {
   get rawAttack(): number {
     return Utilities.fromFloatTo7Bit(this._attack);
   }
-  set rawAttack(arg: number) {
+  set rawAttack(value: number) {
     this._attack = Utilities.from7bitToFloat(value);
   }
 
@@ -288,7 +240,7 @@ export class Note {
   get rawRelease(): number {
     return Utilities.fromFloatTo7Bit(this._release);
   }
-  set rawRelease(arg: number) {
+  set rawRelease(value: number) {
     this._release = Utilities.from7bitToFloat(value);
   }
 
@@ -301,14 +253,8 @@ export class Note {
     return this._release;
   }
 
-  set release(arg: number) {
-    if (WebMidi.validation) {
-      value = parseFloat(value);
-      if (isNaN(value) || !(value >= 0 && value <= 1)) {
-        throw new RangeError("Invalid release value.");
-      }
-    }
-    this._release = value;
+  set release(value: number) {
+    this._release = Number(value);
   }
 
 

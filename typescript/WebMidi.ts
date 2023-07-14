@@ -1,8 +1,9 @@
-import {EventEmitter} from "./EventEmitter";
-import {Input} from "./Input";
-import {Output} from "./Output";
-import {Utilities} from "./Utilities";
-//import {Enumerations} from "./Enumerations";
+import { EventEmitter } from "./EventEmitter";
+import { Input } from "./Input";
+import { WebMidiApi, WebMidiEventMap } from "./Interfaces";
+import { Listener } from "./Listener";
+import { Output} from "./Output";
+import { Utilities} from "./Utilities";
 
 /*START-CJS*/
 
@@ -81,7 +82,7 @@ if (Utilities.isNode) {
  * @license Apache-2.0
  */
 export class WebMidi extends EventEmitter {
-
+  public static validation: boolean = true;
   /**
    * The WebMidi class is a singleton and you cannot instantiate it directly. It has already been
    * instantiated for you.
@@ -104,12 +105,10 @@ export class WebMidi extends EventEmitter {
      * @property {number}  defaults.note.duration - A number representing the default duration of
      * notes (in seconds). Initial value is Infinity.
      */
-    this.defaults = {
-      note: {
-        attack: Utilities.from7bitToFloat(64),
-        release: Utilities.from7bitToFloat(64),
-        duration: Infinity
-      }
+    WebMidi.defaults.note = {
+      attack: Utilities.from7bitToFloat(64),
+      release: Utilities.from7bitToFloat(64),
+      duration: Infinity
     };
 
     /**
@@ -173,12 +172,6 @@ export class WebMidi extends EventEmitter {
      */
     this._stateChangeQueue = [];
 
-    /**
-     * @type {number}
-     * @private
-     */
-    this._octaveOffset = 0;
-
   }
 
   /**
@@ -202,8 +195,8 @@ export class WebMidi extends EventEmitter {
   private _disconnectedInputs;
   private _disconnectedOutputs;
   private _inputs;
-  private _octaveOffset;
-  private _onInterfaceStateChange(e) {
+  private static _octaveOffset:  { value: number} = { value: 0 };
+  private _onInterfaceStateChange(e: any) {
 
     this._updateInputsAndOutputs();
 
@@ -254,7 +247,7 @@ export class WebMidi extends EventEmitter {
      * @property {Input|Output} port The [`Input`](Input) or [`Output`](Output) object that
      * triggered the event.
      */
-    let event = {
+    let event: any = {
       timestamp: e.timeStamp,
       type: e.port.state,
       target: this
@@ -400,7 +393,7 @@ export class WebMidi extends EventEmitter {
 
   };
 
-  private _stateChangeQueue;
+  public _stateChangeQueue;
 
   /**
    * Object containing system-wide default values that can be changed to customize how the library
@@ -416,7 +409,7 @@ export class WebMidi extends EventEmitter {
    * @property {number}  defaults.note.duration - A number representing the default duration of
    * notes (in seconds). Initial value is Infinity.
    */
-  defaults: object;
+  static defaults: any;
 
   /**
    * The [`MIDIAccess`](https://developer.mozilla.org/en-US/docs/Web/API/MIDIAccess)
@@ -476,13 +469,15 @@ export class WebMidi extends EventEmitter {
     e: Symbol | T,
     listener: WebMidiEventMap[T],
     options?: {
+      "duration": number;
       "arguments"?: any[];
       "context"?: any;
-      "duration"?: number;
       "prepend"?: boolean;
       "remaining"?: number;
     }
-  ): Listener | Listener[];
+  ): Listener | Listener[] {
+    return super.addListener(e,listener,options);
+  }
 
   /**
    * Adds a one-time event listener that will trigger a function callback when the specified event
@@ -517,12 +512,14 @@ export class WebMidi extends EventEmitter {
     e: Symbol | T,
     listener: WebMidiEventMap[T],
     options?: {
+      "duration": number;
       "arguments"?: any[];
       "context"?: any;
-      "duration"?: number;
       "prepend"?: boolean;
     }
-  ): Listener | Listener[];
+  ): Listener | Listener[] {
+    return super.addOneTimeListener(e,listener,options);
+  };
 
   /**
    * Completely disables **WebMidi.js** by unlinking the MIDI subsystem's interface and closing all
@@ -537,7 +534,7 @@ export class WebMidi extends EventEmitter {
    *
    * @since 2.0.0
    */
-  /* async */ disable(): Promise<any[]> {
+  async disable(): Promise<any[]> {
 
     // This needs to be done right away to prevent racing conditions in listeners while the inputs
     // are being destroyed.
@@ -545,7 +542,7 @@ export class WebMidi extends EventEmitter {
 
     return this._destroyInputsAndOutputs().then(() => {
 
-      if (navigator && typeof navigator.close === "function") navigator.close(); // jzz
+      if (navigator && ("close" in navigator) && (typeof navigator.close === "function")) navigator.close(); // jzz
       this.interface = null; // also resets enabled, sysexEnabled
 
       /**
@@ -558,8 +555,8 @@ export class WebMidi extends EventEmitter {
        * @property {WebMidi} target The object that triggered the event
        * @property {string} type `"disabled"`
        */
-      let event = {
-        timestamp: this.time,
+      let event: any = {
+        timestamp: WebMidi.time,
         target: this,
         type: "disabled"
       };
@@ -567,7 +564,7 @@ export class WebMidi extends EventEmitter {
       // Finally, trigger the 'disabled' event and then remove all listeners.
       this.emit("disabled", event);
       this.removeListener();
-
+      return [];
     });
 
   };
@@ -643,7 +640,7 @@ export class WebMidi extends EventEmitter {
    * @throws {Error} The Web MIDI API is not supported in your environment.
    * @throws {Error} Jazz-Plugin must be installed to use WebMIDIAPIShim.
    */
-  /* async */ enable(options?: {
+  async enable(options?: {
     callback?: Function;
     sysex?: boolean;
     validation?: boolean;
@@ -685,14 +682,6 @@ export class WebMidi extends EventEmitter {
     }
 
     /*END-ESM*/
-
-    this.validation = (options.validation !== false);
-
-    if (this.validation) {
-      // Backwards-compatibility. Previous syntax was: enable(callback, sysex)
-      if (typeof options === "function") options = {callback: options, sysex: legacy};
-      if (legacy) options.sysex = true;
-    }
 
     // If already enabled, trigger callback and resolve promise but do not dispatch events.
     if (this.enabled) {
@@ -1006,7 +995,9 @@ export class WebMidi extends EventEmitter {
   hasListener<T extends keyof WebMidiEventMap>(
     e: Symbol | T,
     listener: WebMidiEventMap[T]
-  ): boolean;
+  ): boolean {
+    return super.hasListener(e, listener);
+  }
 
   /**
    * Removes the specified listener for the specified event. If no listener is specified, all
@@ -1030,7 +1021,9 @@ export class WebMidi extends EventEmitter {
       "context"?: any;
       "remaining"?: number;
     }
-  ): void;
+  ): void {
+    return super.removeListener(type,listener,options);
+  }
 
   /**
    * Indicates whether access to the host's MIDI subsystem is active or not.
@@ -1070,17 +1063,13 @@ export class WebMidi extends EventEmitter {
    *
    * @since 2.1
    */
-  get octaveOffset(): number {
-    return this._octaveOffset;
+  static get octaveOffset(): number {
+    return WebMidi._octaveOffset.value;
   }
-  set octaveOffset(arg: number) {
 
-    if (this.validation) {
-      value = parseInt(value);
-      if (isNaN(value)) throw new TypeError("The 'octaveOffset' property must be an integer.");
-    }
+  static set octaveOffset(value: number) {
 
-    this._octaveOffset = value;
+    WebMidi._octaveOffset.value = value;
 
   }
 
@@ -1107,7 +1096,7 @@ export class WebMidi extends EventEmitter {
    * @type {boolean}
    */
   get supported(): boolean {
-    return (typeof navigator !== "undefined" && navigator.requestMIDIAccess);
+    return (typeof navigator !== undefined && navigator.requestMIDIAccess!== undefined);
   }
 
   /**
@@ -1136,7 +1125,7 @@ export class WebMidi extends EventEmitter {
    * @type {DOMHighResTimeStamp}
    * @readonly
    */
-  get time(): number {
+  public static get time(): number {
     return performance.now();
   }
 

@@ -89,14 +89,14 @@ export declare class Note {
      * @since 3.0.0
      */
     get accidental(): string;
-    set accidental(arg: string);
+    set accidental(value: string);
     /**
      * The attack velocity of the note as an integer between 0 and 1.
      * @type {number}
      * @since 3.0.0
      */
     get attack(): number;
-    set attack(arg: number);
+    set attack(value: number);
     /**
      * The duration of the note as a positive decimal number representing the number of milliseconds
      * that the note should play for.
@@ -105,13 +105,13 @@ export declare class Note {
      * @since 3.0.0
      */
     get duration(): number;
-    set duration(arg: number);
+    set duration(value: number);
     /**
      * The name, optional accidental and octave of the note, as a string.
      * @type {string}
      * @since 3.0.0
      */
-    set identifier(arg: string);
+    set identifier(value: string);
     get identifier(): string;
     /**
      * The name (letter) of the note. If you need the full name with octave and accidental, you can
@@ -120,7 +120,7 @@ export declare class Note {
      * @since 3.0.0
      */
     get name(): string;
-    set name(arg: string);
+    set name(value: string);
     /**
      * The MIDI number of the note (`0` - `127`). This number is derived from the note identifier
      * using C4 as a reference for middle C.
@@ -136,26 +136,26 @@ export declare class Note {
      * @since 3.0.0
      */
     get octave(): number;
-    set octave(arg: number);
+    set octave(value: number);
     /**
      * The attack velocity of the note as a positive integer between 0 and 127.
      * @type {number}
      * @since 3.0.0
      */
     get rawAttack(): number;
-    set rawAttack(arg: number);
+    set rawAttack(value: number);
     /**
      * The release velocity of the note as a positive integer between 0 and 127.
      * @type {number}
      * @since 3.0.0
      */
     get rawRelease(): number;
-    set rawRelease(arg: number);
+    set rawRelease(value: number);
     /**
      * The release velocity of the note as an integer between 0 and 1.
      * @type {number}
      * @since 3.0.0
      */
     get release(): number;
-    set release(arg: number);
+    set release(value: number);
 }

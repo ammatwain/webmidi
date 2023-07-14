@@ -221,7 +221,7 @@ export declare class Enumerations {
      * @static
      * @since 3.1
      */
-    static get CONTROL_CHANGE_MESSAGES(): object[];
+    static get CONTROL_CHANGE_MESSAGES(): any[];
     /**
      * Enumeration of all MIDI registered parameters and their associated pair of numerical values.
      * MIDI registered parameters extend the original list of control change messages. Currently,

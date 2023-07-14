@@ -2653,6 +2653,164 @@ class InputChannel extends EventEmitter_1.EventEmitter {
         this._parseEventForStandardMessages(event);
     }
     /**
+     * Adds an event listener that will trigger a function callback when the specified event is
+     * dispatched.
+     *
+     * Here are the events you can listen to:
+     *
+     * **Channel Voice** Events
+     *
+     *    * [`channelaftertouch`]{@link InputChannel#event:channelaftertouch}
+     *    * [`controlchange`]{@link InputChannel#event:controlchange}
+     *      * [`controlchange-controller0`]{@link InputChannel#event:controlchange-controller0}
+     *      * [`controlchange-controller1`]{@link InputChannel#event:controlchange-controller1}
+     *      * [`controlchange-controller2`]{@link InputChannel#event:controlchange-controller2}
+     *      * (...)
+     *      * [`controlchange-controller127`]{@link InputChannel#event:controlchange-controller127}
+     *    * [`keyaftertouch`]{@link InputChannel#event:keyaftertouch}
+     *    * [`noteoff`]{@link InputChannel#event:noteoff}
+     *    * [`noteon`]{@link InputChannel#event:noteon}
+     *    * [`pitchbend`]{@link InputChannel#event:pitchbend}
+     *    * [`programchange`]{@link InputChannel#event:programchange}
+     *
+     *    Note: you can listen for a specific control change message by using an event name like this:
+     *    `controlchange-controller23`, `controlchange-controller99`, `controlchange-controller122`,
+     *    etc.
+     *
+     * **Channel Mode** Events
+     *
+     *    * [`allnotesoff`]{@link InputChannel#event:allnotesoff}
+     *    * [`allsoundoff`]{@link InputChannel#event:allsoundoff}
+     *    * [`localcontrol`]{@link InputChannel#event:localcontrol}
+     *    * [`monomode`]{@link InputChannel#event:monomode}
+     *    * [`omnimode`]{@link InputChannel#event:omnimode}
+     *    * [`resetallcontrollers`]{@link InputChannel#event:resetallcontrollers}
+     *
+     * **NRPN** Events
+     *
+     *    * [`nrpn`]{@link InputChannel#event:nrpn}
+     *    * [`nrpn-dataentrycoarse`]{@link InputChannel#event:nrpn-dataentrycoarse}
+     *    * [`nrpn-dataentryfine`]{@link InputChannel#event:nrpn-dataentryfine}
+     *    * [`nrpn-dataincrement`]{@link InputChannel#event:nrpn-dataincrement}
+     *    * [`nrpn-datadecrement`]{@link InputChannel#event:nrpn-datadecrement}
+     *
+     * **RPN** Events
+     *
+     *    * [`rpn`]{@link InputChannel#event:rpn}
+     *    * [`rpn-dataentrycoarse`]{@link InputChannel#event:rpn-dataentrycoarse}
+     *    * [`rpn-dataentryfine`]{@link InputChannel#event:rpn-dataentryfine}
+     *    * [`rpn-dataincrement`]{@link InputChannel#event:rpn-dataincrement}
+     *    * [`rpn-datadecrement`]{@link InputChannel#event:rpn-datadecrement}
+     *
+     * @param event {string | Symbol} The type of the event.
+     *
+     * @param listener {EventEmitterCallback} A callback function to execute when the specified event
+     * is detected. This function will receive an event parameter object. For details on this object's
+     * properties, check out the documentation for the various events (links above).
+     *
+     * @param {object} [options={}]
+     *
+     * @param {array} [options.arguments] An array of arguments which will be passed separately to the
+     * callback function. This array is stored in the [`arguments`](Listener#arguments) property of
+     * the [`Listener`](Listener) object and can be retrieved or modified as desired.
+     *
+     * @param {object} [options.context=this] The value of `this` in the callback function.
+     *
+     * @param {number} [options.duration=Infinity] The number of milliseconds before the listener
+     * automatically expires.
+     *
+     * @param {boolean} [options.prepend=false] Whether the listener should be added at the beginning
+     * of the listeners array and thus be triggered before others.
+     *
+     * @param {number} [options.remaining=Infinity] The number of times after which the callback
+     * should automatically be removed.
+     *
+     * @returns {Listener} The listener object that was created
+     */
+    addListener(e, listener, options) {
+        return super.addListener(e, listener, options);
+    }
+    ;
+    /**
+     * Adds a one-time event listener that will trigger a function callback when the specified event
+     * is dispatched.
+     *
+     * Here are the events you can listen to:
+     *
+     * **Channel Voice** Events
+     *
+     *    * [`channelaftertouch`]{@link InputChannel#event:channelaftertouch}
+     *    * [`controlchange`]{@link InputChannel#event:controlchange}
+     *      * [`controlchange-controller0`]{@link InputChannel#event:controlchange-controller0}
+     *      * [`controlchange-controller1`]{@link InputChannel#event:controlchange-controller1}
+     *      * [`controlchange-controller2`]{@link InputChannel#event:controlchange-controller2}
+     *      * (...)
+     *      * [`controlchange-controller127`]{@link InputChannel#event:controlchange-controller127}
+     *    * [`keyaftertouch`]{@link InputChannel#event:keyaftertouch}
+     *    * [`noteoff`]{@link InputChannel#event:noteoff}
+     *    * [`noteon`]{@link InputChannel#event:noteon}
+     *    * [`pitchbend`]{@link InputChannel#event:pitchbend}
+     *    * [`programchange`]{@link InputChannel#event:programchange}
+     *
+     *    Note: you can listen for a specific control change message by using an event name like this:
+     *    `controlchange-controller23`, `controlchange-controller99`, `controlchange-controller122`,
+     *    etc.
+     *
+     * **Channel Mode** Events
+     *
+     *    * [`allnotesoff`]{@link InputChannel#event:allnotesoff}
+     *    * [`allsoundoff`]{@link InputChannel#event:allsoundoff}
+     *    * [`localcontrol`]{@link InputChannel#event:localcontrol}
+     *    * [`monomode`]{@link InputChannel#event:monomode}
+     *    * [`omnimode`]{@link InputChannel#event:omnimode}
+     *    * [`resetallcontrollers`]{@link InputChannel#event:resetallcontrollers}
+     *
+     * **NRPN** Events
+     *
+     *    * [`nrpn`]{@link InputChannel#event:nrpn}
+     *    * [`nrpn-dataentrycoarse`]{@link InputChannel#event:nrpn-dataentrycoarse}
+     *    * [`nrpn-dataentryfine`]{@link InputChannel#event:nrpn-dataentryfine}
+     *    * [`nrpn-dataincrement`]{@link InputChannel#event:nrpn-dataincrement}
+     *    * [`nrpn-datadecrement`]{@link InputChannel#event:nrpn-datadecrement}
+     *
+     * **RPN** Events
+     *
+     *    * [`rpn`]{@link InputChannel#event:rpn}
+     *    * [`rpn-dataentrycoarse`]{@link InputChannel#event:rpn-dataentrycoarse}
+     *    * [`rpn-dataentryfine`]{@link InputChannel#event:rpn-dataentryfine}
+     *    * [`rpn-dataincrement`]{@link InputChannel#event:rpn-dataincrement}
+     *    * [`rpn-datadecrement`]{@link InputChannel#event:rpn-datadecrement}
+     *
+     * @param event {string | Symbol} The type of the event.
+     *
+     * @param listener {EventEmitterCallback} A callback function to execute when the specified event
+     * is detected. This function will receive an event parameter object. For details on this object's
+     * properties, check out the documentation for the various events (links above).
+     *
+     * @param {object} [options={}]
+     *
+     * @param {array} [options.arguments] An array of arguments which will be passed separately to the
+     * callback function. This array is stored in the [`arguments`](Listener#arguments) property of
+     * the [`Listener`](Listener) object and can be retrieved or modified as desired.
+     *
+     * @param {object} [options.context=this] The value of `this` in the callback function.
+     *
+     * @param {number} [options.duration=Infinity] The number of milliseconds before the listener
+     * automatically expires.
+     *
+     * @param {boolean} [options.prepend=false] Whether the listener should be added at the beginning
+     * of the listeners array and thus be triggered before others.
+     *
+     * @param {number} [options.remaining=Infinity] The number of times after which the callback
+     * should automatically be removed.
+     *
+     * @returns {Listener} The listener object that was created
+     */
+    addOneTimeListener(e, listener, options) {
+        return super.addOneTimeListener(e, listener, options);
+    }
+    ;
+    /**
      * Destroys the `InputChannel` by removing all listeners and severing the link with the MIDI
      * subsystem's input.
      */
@@ -2682,9 +2840,46 @@ class InputChannel extends EventEmitter_1.EventEmitter {
         // If it's a note object, we simply use the identifier
         if (note instanceof Note_1.Note)
             note = note.identifier;
-        const number = Utilities_1.Utilities.guessNoteNumber(note, WebMidi_1.WebMidi.octaveOffset + this.input.octaveOffset + this.octaveOffset);
-        return this.notesState[number];
+        const aNumber = Number(Utilities_1.Utilities.guessNoteNumber(note, WebMidi_1.WebMidi.octaveOffset + this.input.octaveOffset + this.octaveOffset));
+        return this.notesState[aNumber];
     }
+    /**
+     * Checks if the specified event type is already defined to trigger the specified callback
+     * function.
+     *
+     * @param event {string|Symbol} The type of the event.
+     *
+     * @param listener {EventEmitterCallback} The callback function to check for.
+     *
+     * @param {object} [options={}]
+     *
+     * @returns {boolean} Boolean value indicating whether or not the `Input` or `InputChannel`
+     * already has this listener defined.
+     */
+    hasListener(e, listener) {
+        return super.hasListener(e, listener);
+    }
+    ;
+    /**
+     * Removes the specified listener for the specified event. If no listener is specified, all
+     * listeners for the specified event will be removed. If no event is specified, all listeners
+     * will be removed.
+     *
+     * @param [type] {string} The type of the event.
+     *
+     * @param [listener] {EventEmitterCallback} The callback function to check for.
+     *
+     * @param {object} [options={}]
+     *
+     * @param {*} [options.context] Only remove the listeners that have this exact context.
+     *
+     * @param {number} [options.remaining] Only remove the listener if it has exactly that many
+     * remaining times to be executed.
+     */
+    removeListener(type, listener, options) {
+        super.removeListener(type, listener, options);
+    }
+    ;
     /**
      * The [`Input`](Input) this channel belongs to.
      * @type {Input}
@@ -2717,16 +2912,11 @@ class InputChannel extends EventEmitter_1.EventEmitter {
      *
      * @since 3.0
      */
-    set octaveOffset(arg) {
-        return this._octaveOffset;
+    set octaveOffset(value) {
+        this._octaveOffset = Number(value);
     }
     get octaveOffset() {
-        if (this.validation) {
-            value = parseInt(value);
-            if (isNaN(value))
-                throw new TypeError("The 'octaveOffset' property must be an integer.");
-        }
-        this._octaveOffset = value;
+        return this._octaveOffset;
     }
 }
 exports.InputChannel = InputChannel;

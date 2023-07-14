@@ -131,7 +131,7 @@ export declare class InputChannel extends EventEmitter {
     private _parseChannelModeMessage;
     private _parseEventForParameterNumber;
     private _parseEventForStandardMessages;
-    private _processMidiMessageEvent;
+    _processMidiMessageEvent(e: any): void;
     private _nrpnBuffer;
     private _rpnBuffer;
     /**
@@ -229,9 +229,9 @@ export declare class InputChannel extends EventEmitter {
      * @returns {Listener} The listener object that was created
      */
     addListener<T extends keyof InputChannelEventMap>(e: Symbol | T, listener: InputChannelEventMap[T], options?: {
+        "duration": number;
         "arguments"?: any[];
         "context"?: any;
-        "duration"?: number;
         "prepend"?: boolean;
         "remaining"?: number;
     }): Listener | Listener[];
@@ -311,9 +311,9 @@ export declare class InputChannel extends EventEmitter {
      * @returns {Listener} The listener object that was created
      */
     addOneTimeListener<T extends keyof InputChannelEventMap>(e: Symbol | T, listener: InputChannelEventMap[T], options?: {
+        "duration": number;
         "arguments"?: any[];
         "context"?: any;
-        "duration"?: number;
         "prepend"?: boolean;
     }): Listener | Listener[];
     /**
@@ -398,6 +398,6 @@ export declare class InputChannel extends EventEmitter {
      *
      * @since 3.0
      */
-    set octaveOffset(arg: number);
+    set octaveOffset(value: number);
     get octaveOffset(): number;
 }

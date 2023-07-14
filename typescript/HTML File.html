@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <header></header>
+    <main></main>
+    <footer></footer>
+  </body>
+  <script>
+/*
+  navigator.requestMIDIAccess({sysex: false, software: true}).then((access) => {
+    // Get lists of available MIDI controllers
+    const inputs = access.inputs;
+    const outputs = access.outputs;
+    console.log(inputs,outputs);
+  });
+*/
+    var midiTest = {
+      midiAcess: null,
+      init: function() {
+      function log(text){
+        //alert(text);
+        document.querySelector("main").innerHTML += text+"<br/>"
+      }
+      function getMIDIMessage(message) {
+          log(message)
+          var command = message.data[0];
+          var note = message.data[1];
+          var velocity = (message.data.length > 2) ? message.data[2] : 0; // a velocity value might not be included with a noteOff command
+
+          switch (command) {
+              case 144: // noteOn
+                  if (velocity > 0) {
+                      noteOn(note, velocity);
+                  } else {
+                      noteOff(note);
+                  }
+                  break;
+              case 128: // noteOff
+                  noteOff(note);
+                  break;
+              }
+          }
+
+        function onMIDISuccess(midiAccess) {
+          console.log(midiAccess);
+          var inputs=midiAccess.inputs.values();
+
+          for ( var input = inputs.next(); input && !input.done; input = inputs.next()) {
+              input.onmidimessage = getMIDIMessage();
+              var deviceName = input.value.name;
+              log(deviceName);
+          }
+          /*
+          var inputDeviceCount = midiAccess.inputs.size;
+          if(inputDeviceCount > 0) {
+            for(var i=0; i<inputDeviceCount; i++) {
+              var input = midiAccess.inputs.get(i);
+              var deviceName = input.name;
+              console.log(deviceName);
+            }
+          }
+          */
+        }
+        function onMIDIFailure(e) {
+          console.log('No access to MIDI devices' + e);
+        }
+        if(navigator.requestMIDIAccess)
+          navigator.requestMIDIAccess({ sysex: false, software: true}).then(onMIDISuccess, onMIDIFailure);
+        else
+          alert("No MIDI support in your browser.");
+      },
+    };
+window.onload = function () {
+    midiTest.init();
+}
+
+  </script>
+</html>

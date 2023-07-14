@@ -404,20 +404,12 @@ class Input extends EventEmitter_1.EventEmitter {
      * object is returned. If the event is channel-specific, an array of all the
      * [`Listener`](Listener) objects is returned (one for each channel).
      */
-    addListener(e, listener, options) {
-        if (WebMidi_1.WebMidi.validation) {
-            // Legacy compatibility
-            if (typeof options === "function") {
-                let channels = (listener != undefined) ? [].concat(listener) : undefined; // clone
-                listener = options;
-                options = { channels: channels };
-            }
-        }
+    addListener(event, listener, options) {
         // Check if the event is channel-specific or input-wide
-        if (Enumerations_1.Enumerations.CHANNEL_EVENTS.includes(event)) {
+        if (Enumerations_1.Enumerations.CHANNEL_EVENTS.includes(String(event))) {
             // If no channel defined, use all.
             if (options.channels === undefined)
-                options.channels = Enumerations_1.Enumerations.MIDI_CHANNEL_NUMBERS;
+                options.channels = Enumerations_1.Enumerations.CHANNEL_NUMBERS;
             let listeners = [];
             Utilities_1.Utilities.sanitizeChannels(options.channels).forEach(ch => {
                 listeners.push(this.channels[ch].addListener(event, listener, options));
@@ -565,7 +557,7 @@ class Input extends EventEmitter_1.EventEmitter {
      * @returns {Listener|Listener[]} An array of all [`Listener`](Listener) objects that were
      * created.
      */
-    addOneTimeListener(e, listener, options) {
+    addOneTimeListener(event, listener, options) {
         options.remaining = 1;
         return this.addListener(event, listener, options);
     }
@@ -578,7 +570,7 @@ class Input extends EventEmitter_1.EventEmitter {
      *
      * @returns {Promise<Input>} The promise is fulfilled with the `Input` object
      */
-    /* async */ close() {
+    async close() {
         // We close the port. This triggers a statechange event which, in turn, will emit the 'closed'
         // event.
         if (!this._midiInput)
@@ -597,7 +589,7 @@ class Input extends EventEmitter_1.EventEmitter {
      *
      * @returns {Promise<void>}
      */
-    /* async */ destroy() {
+    async destroy() {
         this.removeListener();
         this.channels.forEach(ch => ch.destroy());
         this.channels = [];
@@ -639,7 +631,7 @@ class Input extends EventEmitter_1.EventEmitter {
      * @returns {boolean} Boolean value indicating whether or not the `Input` or `InputChannel`
      * already has this listener defined.
      */
-    hasListener(e, listener, options) {
+    hasListener(event, listener, options) {
         if (WebMidi_1.WebMidi.validation) {
             // Legacy compatibility
             if (typeof options === "function") {
@@ -648,10 +640,10 @@ class Input extends EventEmitter_1.EventEmitter {
                 options = { channels: channels };
             }
         }
-        if (Enumerations_1.Enumerations.CHANNEL_EVENTS.includes(event)) {
+        if (Enumerations_1.Enumerations.CHANNEL_EVENTS.includes(String(event))) {
             // If no channel defined, use all.
             if (options.channels === undefined)
-                options.channels = Enumerations_1.Enumerations.MIDI_CHANNEL_NUMBERS;
+                options.channels = Enumerations_1.Enumerations.CHANNEL_NUMBERS;
             return Utilities_1.Utilities.sanitizeChannels(options.channels).every(ch => {
                 return this.channels[ch].hasListener(event, listener);
             });
@@ -666,7 +658,7 @@ class Input extends EventEmitter_1.EventEmitter {
      *
      * @returns {Promise<Input>} The promise is fulfilled with the `Input` object.
      */
-    /* async */ open() {
+    async open() {
         // Explicitly opens the port for usage. This is not mandatory. When the port is not explicitly
         // opened, it is implicitly opened (asynchronously) when assigning a listener to the
         // `onmidimessage` property of the `MIDIInput`. We do it explicitly so that 'connected' events
@@ -712,17 +704,9 @@ class Input extends EventEmitter_1.EventEmitter {
      * @param {number} [options.remaining] Only remove the listener if it has exactly that many
      * remaining times to be executed.
      */
-    removeListener(type, listener, options) {
-        if (WebMidi_1.WebMidi.validation) {
-            // Legacy compatibility
-            if (typeof options === "function") {
-                let channels = [].concat(listener); // clone
-                listener = options;
-                options = { channels: channels };
-            }
-        }
+    removeListener(event, listener, options) {
         if (options.channels === undefined)
-            options.channels = Enumerations_1.Enumerations.MIDI_CHANNEL_NUMBERS;
+            options.channels = Enumerations_1.Enumerations.CHANNEL_NUMBERS;
         // If the event is not specified, remove everything (channel-specific and input-wide)!
         if (event == undefined) {
             Utilities_1.Utilities.sanitizeChannels(options.channels).forEach(ch => {
@@ -732,7 +716,7 @@ class Input extends EventEmitter_1.EventEmitter {
             return super.removeListener();
         }
         // If the event is specified, check if it's channel-specific or input-wide.
-        if (Enumerations_1.Enumerations.CHANNEL_EVENTS.includes(event)) {
+        if (Enumerations_1.Enumerations.CHANNEL_EVENTS.includes(String(event))) {
             Utilities_1.Utilities.sanitizeChannels(options.channels).forEach(ch => {
                 this.channels[ch].removeListener(event, listener, options);
             });
@@ -793,13 +777,8 @@ class Input extends EventEmitter_1.EventEmitter {
      *
      * @since 3.0
      */
-    set octaveOffset(arg) {
-        if (this.validation) {
-            value = parseInt(value);
-            if (isNaN(value))
-                throw new TypeError("The 'octaveOffset' property must be an integer.");
-        }
-        this._octaveOffset = value;
+    set octaveOffset(value) {
+        this._octaveOffset = Number(value);
     }
     get octaveOffset() {
         return this._octaveOffset;

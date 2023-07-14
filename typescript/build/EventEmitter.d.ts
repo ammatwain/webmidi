@@ -95,9 +95,9 @@ export declare class EventEmitter {
      * @throws {TypeError} The `callback` parameter must be a function.
      */
     addListener(event: string | Symbol, callback: EventEmitterCallback, options?: {
+        duration: number;
         context?: any;
         prepend?: boolean;
-        duration?: number;
         remaining?: number;
         arguments?: any[];
     }): Listener | Listener[];
@@ -130,10 +130,11 @@ export declare class EventEmitter {
      * @throws {TypeError} The `callback` parameter must be a function.
      */
     addOneTimeListener(event: string | Symbol, callback: EventEmitterCallback, options?: {
+        duration: number;
         context?: any;
         prepend?: boolean;
-        duration?: number;
         arguments?: any[];
+        remaining?: number;
     }): Listener | Listener[];
     /**
      * Returns `true` if the specified event has at least one registered listener. If no event is

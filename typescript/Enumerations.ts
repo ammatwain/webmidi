@@ -247,7 +247,7 @@ export class Enumerations {
    * @static
    * @since 3.1
    */
-  static get CONTROL_CHANGE_MESSAGES(): object[] {
+  static get CONTROL_CHANGE_MESSAGES(): any[] {
 
     return [
       {

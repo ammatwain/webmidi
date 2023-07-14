@@ -5,12 +5,13 @@ import { Note } from "./Note";
 import { Output } from "./Output";
 import { WebMidi } from "./WebMidi";
 
-interface Navigator {
+export interface Navigator {
   /**
    * When invoked, returns a Promise object representing a request for access to MIDI devices on the
    * user's system.
    */
   requestMIDIAccess(options?: WebMidiApi.MIDIOptions): Promise<WebMidiApi.MIDIAccess>;
+  close: any;
 }
 
 export namespace WebMidiApi {
@@ -255,8 +256,8 @@ export type EventEmitterCallback = (...args: any[]) => void;
  * @property {string} type The type of the event
  *
  */
-export interface Event {
-  target: Input | InputChannel | Output | WebMidi;
+export interface Event{
+  target: EventTarget | Input | InputChannel | Output | WebMidi |  null;
   timestamp: DOMHighResTimeStamp;
   type: string;
 }
@@ -303,7 +304,7 @@ export interface ErrorEvent extends Event {
  * @property {string} type The type of the event
  *
  */
-export class PortEvent extends Event {
+export interface PortEvent extends Event {
   // port: Input | Output;
   port: any; // temporary fix, see issue #229
 }

@@ -9,6 +9,56 @@ import { EventEmitter, EventEmitterCallback } from "./EventEmitter";
 export class Listener {
 
   /**
+   * The event name.
+   * @type {string}
+   */
+  public event: string | Symbol;
+
+  /**
+   * An array of arguments to pass to the callback function upon execution.
+   * @type {array}
+   */
+  public arguments: any[];
+
+  /**
+   * The callback function to execute.
+   * @type {Function}
+   */
+  public callback: EventEmitterCallback;
+
+  /**
+   * The context to execute the callback function in (a.k.a. the value of `this` inside the
+   * callback function)
+   * @type {Object}
+   */
+  public context: any;
+
+  /**
+   * The number of times the listener function was executed.
+   * @type {number}
+   */
+  public count: number;
+
+  /**
+   * The remaining number of times after which the callback should automatically be removed.
+   * @type {number}
+   */
+  public remaining: number;
+
+  /**
+   * Whether this listener is currently suspended or not.
+   * @type {boolean}
+   */
+  public suspended: boolean;
+
+  /**
+   * The object that the event is attached to (or that emitted the event).
+   * @type {EventEmitter}
+   */
+  public target: EventEmitter;
+
+
+  /**
    * Creates a new `Listener` object
    *
    * @param {string|Symbol} event The event being listened to
@@ -70,110 +120,28 @@ export class Listener {
       setTimeout(() => this.remove(), options.duration);
     }
 
-    /**
-     * An array of arguments to pass to the callback function upon execution.
-     * @type {array}
-     */
     this.arguments = options.arguments;
 
-    /**
-     * The callback function to execute.
-     * @type {Function}
-     */
     this.callback = callback;
 
-    /**
-     * The context to execute the callback function in (a.k.a. the value of `this` inside the
-     * callback function)
-     * @type {Object}
-     */
     this.context = options.context;
 
-    /**
-     * The number of times the listener function was executed.
-     * @type {number}
-     */
     this.count = 0;
 
-    /**
-     * The event name.
-     * @type {string}
-     */
     this.event = event;
 
-    /**
-     * The remaining number of times after which the callback should automatically be removed.
-     * @type {number}
-     */
-    this.remaining = parseInt(options.remaining) >= 1 ? parseInt(options.remaining) : Infinity;
+    this.remaining = Number(options.remaining) >= 1 ? Number(options.remaining) : Infinity;
 
-    /**
-     * Whether this listener is currently suspended or not.
-     * @type {boolean}
-     */
     this.suspended = false;
 
-    /**
-     * The object that the event is attached to (or that emitted the event).
-     * @type {EventEmitter}
-     */
     this.target = target;
 
   }
 
   /**
-   * An array of arguments to pass to the callback function upon execution.
-   * @type {array}
-   */
-  arguments: any[];
-
-  /**
-   * The callback function to execute.
-   * @type {Function}
-   */
-  callback: Function;
-
-  /**
-   * The context to execute the callback function in (a.k.a. the value of `this` inside the
-   * callback function)
-   * @type {Object}
-   */
-  context: any;
-
-  /**
-   * The number of times the listener function was executed.
-   * @type {number}
-   */
-  count: number;
-
-  /**
-   * The event name.
-   * @type {string}
-   */
-  event: string;
-
-  /**
-   * The remaining number of times after which the callback should automatically be removed.
-   * @type {number}
-   */
-  remaining: number;
-
-  /**
-   * Whether this listener is currently suspended or not.
-   * @type {boolean}
-   */
-  suspended: boolean;
-
-  /**
-   * The object that the event is attached to (or that emitted the event).
-   * @type {EventEmitter}
-   */
-  target: EventEmitter;
-
-  /**
    * Removes the listener from its target.
    */
-  remove(): void {
+  public remove(): void {
     this.target.removeListener(
       this.event,
       this.callback,

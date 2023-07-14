@@ -5,7 +5,6 @@ const EventEmitter_1 = require("./EventEmitter");
 const Input_1 = require("./Input");
 const Output_1 = require("./Output");
 const Utilities_1 = require("./Utilities");
-//import {Enumerations} from "./Enumerations";
 /*START-CJS*/
 // This code will only be included in the CJS version (CommonJS).
 // If this code is executed by Node.js then we must import the `jzz` module. I import it in this
@@ -97,12 +96,10 @@ class WebMidi extends EventEmitter_1.EventEmitter {
          * @property {number}  defaults.note.duration - A number representing the default duration of
          * notes (in seconds). Initial value is Infinity.
          */
-        this.defaults = {
-            note: {
-                attack: Utilities_1.Utilities.from7bitToFloat(64),
-                release: Utilities_1.Utilities.from7bitToFloat(64),
-                duration: Infinity
-            }
+        WebMidi.defaults.note = {
+            attack: Utilities_1.Utilities.from7bitToFloat(64),
+            release: Utilities_1.Utilities.from7bitToFloat(64),
+            duration: Infinity
         };
         /**
          * The [`MIDIAccess`](https://developer.mozilla.org/en-US/docs/Web/API/MIDIAccess)
@@ -158,11 +155,6 @@ class WebMidi extends EventEmitter_1.EventEmitter {
          * @private
          */
         this._stateChangeQueue = [];
-        /**
-         * @type {number}
-         * @private
-         */
-        this._octaveOffset = 0;
     }
     /**
      * @return {Promise<void>}
@@ -346,6 +338,74 @@ class WebMidi extends EventEmitter_1.EventEmitter {
     }
     ;
     /**
+     * Adds an event listener that will trigger a function callback when the specified event is
+     * dispatched.
+     *
+     * Here are the events you can listen to:   connected, disabled, disconnected, enabled,
+     * midiaccessgranted, portschanged, error
+     *
+     * @param event {string | Symbol} The type of the event.
+     *
+     * @param listener {EventEmitterCallback} A callback function to execute when the specified event
+     * is detected. This function will receive an event parameter object. For details on this object's
+     * properties, check out the documentation for the various events (links above).
+     *
+     * @param {object} [options={}]
+     *
+     * @param {array} [options.arguments] An array of arguments which will be passed separately to the
+     * callback function. This array is stored in the [`arguments`](Listener#arguments) property of
+     * the [`Listener`](Listener) object and can be retrieved or modified as desired.
+     *
+     * @param {object} [options.context=this] The value of `this` in the callback function.
+     *
+     * @param {number} [options.duration=Infinity] The number of milliseconds before the listener
+     * automatically expires.
+     *
+     * @param {boolean} [options.prepend=false] Whether the listener should be added at the beginning
+     * of the listeners array and thus be triggered before others.
+     *
+     * @param {number} [options.remaining=Infinity] The number of times after which the callback
+     * should automatically be removed.
+     *
+     * @returns {Listener} The listener object that was created
+     */
+    addListener(e, listener, options) {
+        return super.addListener(e, listener, options);
+    }
+    /**
+     * Adds a one-time event listener that will trigger a function callback when the specified event
+     * is dispatched.
+     *
+     * Here are the events you can listen to:   connected, disabled, disconnected, enabled,
+     * midiaccessgranted, portschanged, error
+     *
+     * @param event {string | Symbol} The type of the event.
+     *
+     * @param listener {EventEmitterCallback} A callback function to execute when the specified event
+     * is detected. This function will receive an event parameter object. For details on this object's
+     * properties, check out the documentation for the various events (links above).
+     *
+     * @param {object} [options={}]
+     *
+     * @param {array} [options.arguments] An array of arguments which will be passed separately to the
+     * callback function. This array is stored in the [`arguments`](Listener#arguments) property of
+     * the [`Listener`](Listener) object and can be retrieved or modified as desired.
+     *
+     * @param {object} [options.context=this] The value of `this` in the callback function.
+     *
+     * @param {number} [options.duration=Infinity] The number of milliseconds before the listener
+     * automatically expires.
+     *
+     * @param {boolean} [options.prepend=false] Whether the listener should be added at the beginning
+     * of the listeners array and thus be triggered before others.
+     *
+     * @returns {Listener} The listener object that was created
+     */
+    addOneTimeListener(e, listener, options) {
+        return super.addOneTimeListener(e, listener, options);
+    }
+    ;
+    /**
      * Completely disables **WebMidi.js** by unlinking the MIDI subsystem's interface and closing all
      * [`Input`](Input) and [`Output`](Output) objects that may have been opened. This also means that
      * listeners added to [`Input`](Input) objects, [`Output`](Output) objects or to `WebMidi` itself
@@ -358,13 +418,13 @@ class WebMidi extends EventEmitter_1.EventEmitter {
      *
      * @since 2.0.0
      */
-    /* async */ disable() {
+    async disable() {
         // This needs to be done right away to prevent racing conditions in listeners while the inputs
         // are being destroyed.
         if (this.interface)
             this.interface.onstatechange = undefined;
         return this._destroyInputsAndOutputs().then(() => {
-            if (navigator && typeof navigator.close === "function")
+            if (navigator && ("close" in navigator) && (typeof navigator.close === "function"))
                 navigator.close(); // jzz
             this.interface = null; // also resets enabled, sysexEnabled
             /**
@@ -378,13 +438,14 @@ class WebMidi extends EventEmitter_1.EventEmitter {
              * @property {string} type `"disabled"`
              */
             let event = {
-                timestamp: this.time,
+                timestamp: WebMidi.time,
                 target: this,
                 type: "disabled"
             };
             // Finally, trigger the 'disabled' event and then remove all listeners.
             this.emit("disabled", event);
             this.removeListener();
+            return [];
         });
     }
     ;
@@ -458,7 +519,7 @@ class WebMidi extends EventEmitter_1.EventEmitter {
      * @throws {Error} The Web MIDI API is not supported in your environment.
      * @throws {Error} Jazz-Plugin must be installed to use WebMIDIAPIShim.
      */
-    /* async */ enable(options) {
+    async enable(options) {
         /*START-ESM*/
         // This block is stripped out of the IIFE and CJS versions where it isn't needed.
         // If this code is executed by Node.js in "module" mode (when "type": "module" is used in the
@@ -489,14 +550,6 @@ class WebMidi extends EventEmitter_1.EventEmitter {
             }
         }
         /*END-ESM*/
-        this.validation = (options.validation !== false);
-        if (this.validation) {
-            // Backwards-compatibility. Previous syntax was: enable(callback, sysex)
-            if (typeof options === "function")
-                options = { callback: options, sysex: legacy };
-            if (legacy)
-                options.sysex = true;
-        }
         // If already enabled, trigger callback and resolve promise but do not dispatch events.
         if (this.enabled) {
             if (typeof options.callback === "function")
@@ -778,6 +831,40 @@ class WebMidi extends EventEmitter_1.EventEmitter {
         }
     }
     /**
+     * Checks if the specified event type is already defined to trigger the specified callback
+     * function.
+     *
+     * @param event {string|Symbol} The type of the event.
+     *
+     * @param listener {EventEmitterCallback} The callback function to check for.
+     *
+     * @param {object} [options={}]
+     *
+     * @returns {boolean} Boolean value indicating whether or not the `Input` or `InputChannel`
+     * already has this listener defined.
+     */
+    hasListener(e, listener) {
+        return super.hasListener(e, listener);
+    }
+    /**
+     * Removes the specified listener for the specified event. If no listener is specified, all
+     * listeners for the specified event will be removed.
+     *
+     * @param [type] {string} The type of the event.
+     *
+     * @param [listener] {EventEmitterCallback} The callback function to check for.
+     *
+     * @param {object} [options={}]
+     *
+     * @param {*} [options.context] Only remove the listeners that have this exact context.
+     *
+     * @param {number} [options.remaining] Only remove the listener if it has exactly that many
+     * remaining times to be executed.
+     */
+    removeListener(type, listener, options) {
+        return super.removeListener(type, listener, options);
+    }
+    /**
      * Indicates whether access to the host's MIDI subsystem is active or not.
      *
      * @readonly
@@ -811,16 +898,11 @@ class WebMidi extends EventEmitter_1.EventEmitter {
      *
      * @since 2.1
      */
-    get octaveOffset() {
-        return this._octaveOffset;
+    static get octaveOffset() {
+        return WebMidi._octaveOffset.value;
     }
-    set octaveOffset(arg) {
-        if (this.validation) {
-            value = parseInt(value);
-            if (isNaN(value))
-                throw new TypeError("The 'octaveOffset' property must be an integer.");
-        }
-        this._octaveOffset = value;
+    static set octaveOffset(value) {
+        WebMidi._octaveOffset.value = value;
     }
     /**
      * An array of all currently available MIDI outputs as [`Output`](Output) objects.
@@ -844,7 +926,7 @@ class WebMidi extends EventEmitter_1.EventEmitter {
      * @type {boolean}
      */
     get supported() {
-        return (typeof navigator !== "undefined" && navigator.requestMIDIAccess);
+        return (typeof navigator !== undefined && navigator.requestMIDIAccess !== undefined);
     }
     /**
      * Indicates whether MIDI system exclusive messages have been activated when WebMidi.js was
@@ -870,7 +952,7 @@ class WebMidi extends EventEmitter_1.EventEmitter {
      * @type {DOMHighResTimeStamp}
      * @readonly
      */
-    get time() {
+    static get time() {
         return performance.now();
     }
     /**
@@ -898,6 +980,8 @@ class WebMidi extends EventEmitter_1.EventEmitter {
     }
 }
 exports.WebMidi = WebMidi;
+WebMidi.validation = true;
+WebMidi._octaveOffset = { value: 0 };
 const wm = new WebMidi();
 wm.constructor = null;
 /*

@@ -437,11 +437,11 @@ class Utilities {
      * @since 3.0.0
      * @static
      */
-    static toNoteIdentifier(number, octaveOffset) {
-        number = parseInt(number);
+    static toNoteIdentifier(number, octaveOffset = 0) {
+        number = Number(number);
         if (isNaN(number) || number < 0 || number > 127)
             throw new RangeError("Invalid note number");
-        octaveOffset = octaveOffset == undefined ? 0 : parseInt(octaveOffset);
+        octaveOffset = octaveOffset == undefined ? 0 : Number(octaveOffset);
         if (isNaN(octaveOffset))
             throw new RangeError("Invalid octaveOffset value");
         const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];

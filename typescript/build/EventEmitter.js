@@ -94,13 +94,13 @@ class EventEmitter {
         if (typeof callback !== "function")
             throw new TypeError("The callback must be a function.");
         const listener = new Listener_1.Listener(event, this, callback, options);
-        if (!this.eventMap[event])
-            this.eventMap[event] = [];
+        if (!this.eventMap[String(event)])
+            this.eventMap[String(event)] = [];
         if (options.prepend) {
-            this.eventMap[event].unshift(listener);
+            this.eventMap[String(event)].unshift(listener);
         }
         else {
-            this.eventMap[event].push(listener);
+            this.eventMap[String(event)].push(listener);
         }
         return listener;
     }
@@ -134,7 +134,7 @@ class EventEmitter {
      */
     addOneTimeListener(event, callback, options) {
         options.remaining = 1;
-        this.addListener(event, callback, options);
+        return this.addListener(event, callback, options);
     }
     /**
      * Returns `true` if the specified event has at least one registered listener. If no event is
@@ -154,22 +154,22 @@ class EventEmitter {
     hasListener(event, callback) {
         if (event === undefined) {
             // Check for ANY_EVENT
-            if (this.eventMap[EventEmitter.ANY_EVENT] && this.eventMap[EventEmitter.ANY_EVENT].length > 0) {
+            if (this.eventMap[String(EventEmitter.ANY_EVENT)] && this.eventMap[String(EventEmitter.ANY_EVENT)].length > 0) {
                 return true;
             }
             // Check for any regular events
             return Object.entries(this.eventMap).some(([, value]) => {
-                return value.length > 0;
+                return String(value).length > 0;
             });
         }
         else {
-            if (this.eventMap[event] && this.eventMap[event].length > 0) {
+            if (this.eventMap[String(event)] && this.eventMap[String(event)].length > 0) {
                 if (callback instanceof Listener_1.Listener) {
-                    let result = this.eventMap[event].filter(listener => listener === callback);
+                    let result = this.eventMap[String(event)].filter((listener) => listener === callback);
                     return result.length > 0;
                 }
                 else if (typeof callback === "function") {
-                    let result = this.eventMap[event].filter(listener => listener.callback === callback);
+                    let result = this.eventMap[String(event)].filter(listener => listener.callback === callback);
                     return result.length > 0;
                 }
                 else if (callback != undefined) {
@@ -209,7 +209,7 @@ class EventEmitter {
      * @returns {Listener[]} An array of [`Listener`]{@link Listener} objects.
      */
     getListeners(event) {
-        return this.eventMap[event] || [];
+        return this.eventMap[String(event)] || [];
     }
     /**
      * Suspends execution of all callbacks functions registered for the specified event type.
@@ -299,10 +299,10 @@ class EventEmitter {
         let results = [];
         // We must make sure that we do not have undefined otherwise concat() will add an undefined
         // entry in the array.
-        let listeners = this.eventMap[EventEmitter.ANY_EVENT] || [];
+        let listeners = this.eventMap[String(EventEmitter.ANY_EVENT)] || [];
         if (this.eventMap[event])
             listeners = listeners.concat(this.eventMap[event]);
-        listeners.forEach(listener => {
+        listeners.forEach((listener) => {
             // This is the per-listener suspension check
             if (listener.suspended)
                 return;
@@ -340,20 +340,20 @@ class EventEmitter {
             this.eventMap = {};
             return;
         }
-        else if (!this.eventMap[event]) {
+        else if (!this.eventMap[String(event)]) {
             return;
         }
         // Find listeners that do not match the criterias (those are the ones we will keep)
-        let listeners = this.eventMap[event].filter(listener => {
+        let listeners = this.eventMap[String(event)].filter((listener) => {
             return (callback && listener.callback !== callback) ||
                 (options.remaining && options.remaining !== listener.remaining) ||
                 (options.context && options.context !== listener.context);
         });
         if (listeners.length) {
-            this.eventMap[event] = listeners;
+            this.eventMap[String(event)] = listeners;
         }
         else {
-            delete this.eventMap[event];
+            delete this.eventMap[String(event)];
         }
     }
     /**
@@ -373,7 +373,7 @@ class EventEmitter {
      * promise is automatically rejected.
      */
     /* async */ waitFor(event, options) {
-        options.duration = parseInt(options.duration);
+        options.duration = Number(options.duration);
         if (isNaN(options.duration) || options.duration <= 0)
             options.duration = Infinity;
         return new Promise((resolve, reject) => {
@@ -381,7 +381,7 @@ class EventEmitter {
             let listener = this.addListener(event, () => {
                 clearTimeout(timeout);
                 resolve();
-            }, { remaining: 1 });
+            }, { duration: options.duration, remaining: 1 });
             if (options.duration !== Infinity) {
                 timeout = setTimeout(() => {
                     listener.remove();

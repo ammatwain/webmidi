@@ -266,11 +266,11 @@ export declare class Input extends EventEmitter {
      * object is returned. If the event is channel-specific, an array of all the
      * [`Listener`](Listener) objects is returned (one for each channel).
      */
-    addListener<T extends keyof InputEventMap>(e: Symbol | T, listener: InputEventMap[T], options?: {
+    addListener<T extends keyof InputEventMap>(event: Symbol | T, listener: InputEventMap[T], options?: {
+        "duration": number;
         "arguments"?: any[];
         "channels"?: number | number[];
         "context"?: any;
-        "duration"?: number;
         "prepend"?: boolean;
         "remaining"?: number;
     }): Listener | Listener[];
@@ -411,12 +411,13 @@ export declare class Input extends EventEmitter {
      * @returns {Listener|Listener[]} An array of all [`Listener`](Listener) objects that were
      * created.
      */
-    addOneTimeListener<T extends keyof InputEventMap>(e: Symbol | T, listener: InputEventMap[T], options?: {
+    addOneTimeListener<T extends keyof InputEventMap>(event: Symbol | T, listener: InputEventMap[T], options?: {
+        "duration": number;
         "arguments"?: any[];
         "channels"?: number | number[];
         "context"?: any;
-        "duration"?: number;
         "prepend"?: boolean;
+        "remaining"?: number;
     }): Listener | Listener[];
     /**
      * Closes the input. When an input is closed, it cannot be used to listen to MIDI messages until
@@ -462,7 +463,7 @@ export declare class Input extends EventEmitter {
      * @returns {boolean} Boolean value indicating whether or not the `Input` or `InputChannel`
      * already has this listener defined.
      */
-    hasListener<T extends keyof InputEventMap>(e: Symbol | T, listener: InputEventMap[T], options?: {
+    hasListener<T extends keyof InputEventMap>(event: Symbol | T, listener: InputEventMap[T], options?: {
         "channels"?: number | number[];
     }): boolean;
     /**
@@ -503,7 +504,7 @@ export declare class Input extends EventEmitter {
      * @param {number} [options.remaining] Only remove the listener if it has exactly that many
      * remaining times to be executed.
      */
-    removeListener<T extends keyof InputEventMap>(type?: Symbol | T, listener?: InputEventMap[T], options?: {
+    removeListener<T extends keyof InputEventMap>(event?: Symbol | T, listener?: InputEventMap[T], options?: {
         "channels"?: number | number[];
         "context"?: any;
         "remaining"?: number;
@@ -552,7 +553,7 @@ export declare class Input extends EventEmitter {
      *
      * @since 3.0
      */
-    set octaveOffset(arg: number);
+    set octaveOffset(value: number);
     get octaveOffset(): number;
     /**
      * State of the input port: `connected` or `disconnected`.

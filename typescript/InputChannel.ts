@@ -382,7 +382,7 @@ export class InputChannel extends EventEmitter {
      * @property {number} rawValue The value as received (0-127)
      */
 
-    const event = {
+    const event: any = {
       target: e.target,
       timestamp: e.timestamp,
       message: e.message,
@@ -405,7 +405,7 @@ export class InputChannel extends EventEmitter {
     }
 
     // Type and subtype
-    const subtype = Enumerations.CONTROL_CHANGE_MESSAGES[e.message.dataBytes[0]].name;
+    const subtype: string = Enumerations.CONTROL_CHANGE_MESSAGES[e.message.dataBytes[0]].name;
 
     // Emit specific event
     event.type = `${type}-${subtype}`;
@@ -512,7 +512,7 @@ export class InputChannel extends EventEmitter {
   }
 
   private _number;
-  private _octaveOffset;
+  private _octaveOffset: number;
   private _parseChannelModeMessage(e) {
 
     // Make a shallow copy of the incoming event so we can use it as the new event.
@@ -2803,10 +2803,10 @@ export class InputChannel extends EventEmitter {
 
   }
 
-  private _processMidiMessageEvent(e) {
+  public _processMidiMessageEvent(e: any) {
 
     // Create and emit a new 'midimessage' event based on the incoming one
-    const event = Object.assign({}, e);
+    const event: any = Object.assign({}, e);
     event.port = this.input;
     event.target = this;
     event.type = "midimessage";
@@ -2936,13 +2936,15 @@ export class InputChannel extends EventEmitter {
     e: Symbol | T,
     listener: InputChannelEventMap[T],
     options?: {
+      "duration": number;
       "arguments"?: any[];
       "context"?: any;
-      "duration"?: number;
       "prepend"?: boolean;
       "remaining"?: number;
     }
-  ): Listener | Listener[];
+  ): Listener | Listener[] {
+    return super.addListener(e,listener,options)
+  };
 
   /**
    * Adds a one-time event listener that will trigger a function callback when the specified event
@@ -3023,12 +3025,14 @@ export class InputChannel extends EventEmitter {
     e: Symbol | T,
     listener: InputChannelEventMap[T],
     options?: {
+      "duration": number;
       "arguments"?: any[];
       "context"?: any;
-      "duration"?: number;
       "prepend"?: boolean;
     }
-  ): Listener | Listener[];
+  ): Listener | Listener[] {
+    return super.addOneTimeListener(e,listener,options);
+  };
 
   /**
    * Destroys the `InputChannel` by removing all listeners and severing the link with the MIDI
@@ -3062,12 +3066,12 @@ export class InputChannel extends EventEmitter {
     // If it's a note object, we simply use the identifier
     if (note instanceof Note) note = note.identifier;
 
-    const number = Utilities.guessNoteNumber(
+    const aNumber: number = Number(Utilities.guessNoteNumber(
       note,
       WebMidi.octaveOffset + this.input.octaveOffset + this.octaveOffset
-    );
+    ));
 
-    return this.notesState[number];
+    return this.notesState[aNumber];
 
   }
 
@@ -3087,7 +3091,9 @@ export class InputChannel extends EventEmitter {
   hasListener<T extends keyof InputChannelEventMap>(
     e: Symbol | T,
     listener: InputChannelEventMap[T]
-  ): boolean;
+  ): boolean {
+    return super.hasListener(e,listener);
+  };
 
   /**
    * Removes the specified listener for the specified event. If no listener is specified, all
@@ -3113,7 +3119,9 @@ export class InputChannel extends EventEmitter {
       "context"?: any;
       "remaining"?: number;
     }
-  ): void;
+  ): void {
+    super.removeListener(type,listener,options);
+  };
 
   /**
    * The [`Input`](Input) this channel belongs to.
@@ -3149,19 +3157,12 @@ export class InputChannel extends EventEmitter {
    *
    * @since 3.0
    */
-  set octaveOffset(arg: number){
-    return this._octaveOffset;
+  set octaveOffset(value: number){
+    this._octaveOffset = Number(value);
   }
 
   get octaveOffset(): number {
-
-    if (this.validation) {
-      value = parseInt(value);
-      if (isNaN(value)) throw new TypeError("The 'octaveOffset' property must be an integer.");
-    }
-
-    this._octaveOffset = value;
-
+    return this._octaveOffset;
   }
 
 

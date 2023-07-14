@@ -8,7 +8,6 @@
       "outDir": "build",
       "declaration": true,
       "sourceMap": true,
-      "typeRoots": ["./node_modules/@types"],
      },
     "include": [
       "./WebMidi.ts"

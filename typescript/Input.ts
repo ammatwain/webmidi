@@ -5,7 +5,7 @@ import {InputChannel} from "./InputChannel";
 import {Message} from "./Message";
 import {Utilities} from "./Utilities";
 import {WebMidi} from "./WebMidi";
-import {InputEventMap, WebMidiApi} from "./Interfaces";
+import {InputEventMap, PortEvent, WebMidiApi} from "./Interfaces";
 import { Output } from "./Output";
 import { Listener } from "./Listener";
 
@@ -158,9 +158,9 @@ export class Input extends EventEmitter {
    * @param e
    * @private
    */
-  private _onStateChange(e) {
+  private _onStateChange(e: PortEvent) {
 
-    let event = {
+    let event: any = {
       timestamp: WebMidi.time,
       target: this,
       port: this // for consistency
@@ -237,7 +237,7 @@ export class Input extends EventEmitter {
   /**
    * @private
    */
-  private _parseEvent(e) {
+  private _parseEvent(e: any) {
 
     // Make a shallow copy of the incoming event so we can use it as the new event.
     const event = Object.assign({}, e);
@@ -446,39 +446,28 @@ export class Input extends EventEmitter {
    * [`Listener`](Listener) objects is returned (one for each channel).
    */
   addListener<T extends keyof InputEventMap>(
-    e: Symbol | T,
+    event: Symbol | T,
     listener: InputEventMap[T],
     options?: {
+      "duration": number;
       "arguments"?: any[];
       "channels"?: number | number[];
       "context"?: any;
-      "duration"?: number;
       "prepend"?: boolean;
       "remaining"?: number;
     }
   ): Listener | Listener[] {
 
-    if (WebMidi.validation) {
-
-      // Legacy compatibility
-      if (typeof options === "function") {
-        let channels = (listener != undefined) ? [].concat(listener) : undefined; // clone
-        listener = options;
-        options = {channels: channels};
-      }
-
-    }
-
     // Check if the event is channel-specific or input-wide
-    if (Enumerations.CHANNEL_EVENTS.includes(event)) {
+    if (Enumerations.CHANNEL_EVENTS.includes(String(event))) {
 
       // If no channel defined, use all.
-      if (options.channels === undefined) options.channels = Enumerations.MIDI_CHANNEL_NUMBERS;
+      if (options.channels === undefined) options.channels = Enumerations.CHANNEL_NUMBERS;
 
       let listeners = [];
 
       Utilities.sanitizeChannels(options.channels).forEach(ch => {
-        listeners.push(this.channels[ch].addListener(event, listener, options));
+        listeners.push(this.channels[ch].addListener(<Symbol>event, listener, options));
       });
 
       return listeners;
@@ -629,14 +618,15 @@ export class Input extends EventEmitter {
    * created.
    */
   addOneTimeListener<T extends keyof InputEventMap>(
-    e: Symbol | T,
+    event: Symbol | T,
     listener: InputEventMap[T],
     options?: {
+      "duration": number;
       "arguments"?: any[];
       "channels"?: number | number[];
       "context"?: any;
-      "duration"?: number;
       "prepend"?: boolean;
+      "remaining"?: number;
     }
   ): Listener | Listener[]  {
     options.remaining = 1;
@@ -652,7 +642,7 @@ export class Input extends EventEmitter {
    *
    * @returns {Promise<Input>} The promise is fulfilled with the `Input` object
    */
-  /* async */ close(): Promise<Input>{
+  async close(): Promise<Input>{
 
     // We close the port. This triggers a statechange event which, in turn, will emit the 'closed'
     // event.
@@ -671,7 +661,7 @@ export class Input extends EventEmitter {
    *
    * @returns {Promise<void>}
    */
-  /* async */ destroy(): Promise<void> {
+  async  destroy(): Promise<void> {
     this.removeListener();
     this.channels.forEach(ch => ch.destroy());
     this.channels = [];
@@ -715,7 +705,7 @@ export class Input extends EventEmitter {
    * already has this listener defined.
    */
   hasListener<T extends keyof InputEventMap>(
-    e: Symbol | T,
+    event: Symbol | T,
     listener: InputEventMap[T],
     options?: {
       "channels"?: number | number[];
@@ -732,13 +722,13 @@ export class Input extends EventEmitter {
 
     }
 
-    if (Enumerations.CHANNEL_EVENTS.includes(event)) {
+    if (Enumerations.CHANNEL_EVENTS.includes(String(event))) {
 
       // If no channel defined, use all.
-      if (options.channels === undefined) options.channels = Enumerations.MIDI_CHANNEL_NUMBERS;
+      if (options.channels === undefined) options.channels = Enumerations.CHANNEL_NUMBERS;
 
       return Utilities.sanitizeChannels(options.channels).every(ch => {
-        return this.channels[ch].hasListener(event, listener);
+        return this.channels[ch].hasListener(<Symbol>event, listener);
       });
 
     } else {
@@ -753,7 +743,7 @@ export class Input extends EventEmitter {
    *
    * @returns {Promise<Input>} The promise is fulfilled with the `Input` object.
    */
-  /* async */ open(): Promise<Input>{
+   async open(): Promise<Input>{
     // Explicitly opens the port for usage. This is not mandatory. When the port is not explicitly
     // opened, it is implicitly opened (asynchronously) when assigning a listener to the
     // `onmidimessage` property of the `MIDIInput`. We do it explicitly so that 'connected' events
@@ -801,7 +791,7 @@ export class Input extends EventEmitter {
    * remaining times to be executed.
    */
   removeListener<T extends keyof InputEventMap>(
-    type?: Symbol | T,
+    event?: Symbol | T,
     listener?: InputEventMap[T],
     options?: {
       "channels"?: number | number[];
@@ -810,18 +800,7 @@ export class Input extends EventEmitter {
     }
   ): void {
 
-    if (WebMidi.validation) {
-
-      // Legacy compatibility
-      if (typeof options === "function") {
-        let channels = [].concat(listener); // clone
-        listener = options;
-        options = {channels: channels};
-      }
-
-    }
-
-    if (options.channels === undefined) options.channels = Enumerations.MIDI_CHANNEL_NUMBERS;
+    if (options.channels === undefined) options.channels = Enumerations.CHANNEL_NUMBERS;
 
     // If the event is not specified, remove everything (channel-specific and input-wide)!
     if (event == undefined) {
@@ -832,10 +811,10 @@ export class Input extends EventEmitter {
     }
 
     // If the event is specified, check if it's channel-specific or input-wide.
-    if (Enumerations.CHANNEL_EVENTS.includes(event)) {
+    if (Enumerations.CHANNEL_EVENTS.includes(String(event))) {
 
       Utilities.sanitizeChannels(options.channels).forEach(ch => {
-        this.channels[ch].removeListener(event, listener, options);
+        this.channels[ch].removeListener(<Symbol>event, listener, options);
       });
 
     } else {
@@ -901,12 +880,8 @@ export class Input extends EventEmitter {
    *
    * @since 3.0
    */
-  set octaveOffset(arg: number) {
-    if (this.validation) {
-      value = parseInt(value);
-      if (isNaN(value)) throw new TypeError("The 'octaveOffset' property must be an integer.");
-    }
-    this._octaveOffset = value;
+  set octaveOffset(value: number) {
+    this._octaveOffset = Number(value);
   }
   get octaveOffset(): number {
     return this._octaveOffset;

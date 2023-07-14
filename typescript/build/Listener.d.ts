@@ -7,6 +7,47 @@ import { EventEmitter, EventEmitterCallback } from "./EventEmitter";
  */
 export declare class Listener {
     /**
+     * The event name.
+     * @type {string}
+     */
+    event: string | Symbol;
+    /**
+     * An array of arguments to pass to the callback function upon execution.
+     * @type {array}
+     */
+    arguments: any[];
+    /**
+     * The callback function to execute.
+     * @type {Function}
+     */
+    callback: EventEmitterCallback;
+    /**
+     * The context to execute the callback function in (a.k.a. the value of `this` inside the
+     * callback function)
+     * @type {Object}
+     */
+    context: any;
+    /**
+     * The number of times the listener function was executed.
+     * @type {number}
+     */
+    count: number;
+    /**
+     * The remaining number of times after which the callback should automatically be removed.
+     * @type {number}
+     */
+    remaining: number;
+    /**
+     * Whether this listener is currently suspended or not.
+     * @type {boolean}
+     */
+    suspended: boolean;
+    /**
+     * The object that the event is attached to (or that emitted the event).
+     * @type {EventEmitter}
+     */
+    target: EventEmitter;
+    /**
      * Creates a new `Listener` object
      *
      * @param {string|Symbol} event The event being listened to
@@ -33,47 +74,6 @@ export declare class Listener {
         remaining?: number;
         arguments?: any[];
     }, ...args: any[]);
-    /**
-     * An array of arguments to pass to the callback function upon execution.
-     * @type {array}
-     */
-    arguments: any[];
-    /**
-     * The callback function to execute.
-     * @type {Function}
-     */
-    callback: Function;
-    /**
-     * The context to execute the callback function in (a.k.a. the value of `this` inside the
-     * callback function)
-     * @type {Object}
-     */
-    context: any;
-    /**
-     * The number of times the listener function was executed.
-     * @type {number}
-     */
-    count: number;
-    /**
-     * The event name.
-     * @type {string}
-     */
-    event: string;
-    /**
-     * The remaining number of times after which the callback should automatically be removed.
-     * @type {number}
-     */
-    remaining: number;
-    /**
-     * Whether this listener is currently suspended or not.
-     * @type {boolean}
-     */
-    suspended: boolean;
-    /**
-     * The object that the event is attached to (or that emitted the event).
-     * @type {EventEmitter}
-     */
-    target: EventEmitter;
     /**
      * Removes the listener from its target.
      */

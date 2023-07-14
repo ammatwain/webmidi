@@ -300,7 +300,7 @@ export declare class Utilities {
      * @since 3.0.0
      * @static
      */
-    static toNoteIdentifier(number: number, octaveOffset: number): string;
+    static toNoteIdentifier(number: number | string, octaveOffset?: number): string;
     /**
      * Returns a MIDI note number matching the identifier passed in the form of a string. The
      * identifier must include the octave number. The identifier also optionally include a sharp (#),
