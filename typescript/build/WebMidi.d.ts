@@ -250,7 +250,7 @@ export declare class WebMidi extends EventEmitter {
         validation?: boolean;
         software?: boolean;
         requestMIDIAccessFunction?: Function;
-    }): Promise<WebMidi>;
+    }): Promise<any>;
     /**
      * Returns the [`Input`](Input) object that matches the specified ID string or `false` if no
      * matching input is found. As per the Web MIDI API specification, IDs are strings (not integers).

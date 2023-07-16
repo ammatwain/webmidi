@@ -646,7 +646,7 @@ export class WebMidi extends EventEmitter {
     validation?: boolean;
     software?: boolean;
     requestMIDIAccessFunction?: Function;
-  }): Promise<WebMidi> {
+  }): Promise<any> {
 
     /*START-ESM*/
 
@@ -730,7 +730,7 @@ export class WebMidi extends EventEmitter {
      * @property {*} error Actual error that occurred
      */
     const errorEvent = {
-      timestamp: this.time,
+      timestamp: WebMidi.time,
       target: this,
       type: "error",
       error: undefined
@@ -748,7 +748,7 @@ export class WebMidi extends EventEmitter {
      * @property {string} type `midiaccessgranted`
      */
     const midiAccessGrantedEvent = {
-      timestamp: this.time,
+      timestamp: WebMidi.time,
       target: this,
       type: "midiaccessgranted"
     };
@@ -764,7 +764,7 @@ export class WebMidi extends EventEmitter {
      * @property {string} type `"enabled"`
      */
     const enabledEvent = {
-      timestamp: this.time,
+      timestamp: WebMidi.time,
       target: this,
       type: "enabled"
     };

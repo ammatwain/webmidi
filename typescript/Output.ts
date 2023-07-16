@@ -6,6 +6,7 @@ import {WebMidi} from "./WebMidi";
 import {Utilities} from "./Utilities.js";
 import {WebMidiApi, Event, PortEventMap } from "./Interfaces";
 import { Listener } from "./Listener";
+import { Note } from "./Note";
 
 /**
  * The `Output` class represents a single MIDI output port (not to be confused with a MIDI channel).
